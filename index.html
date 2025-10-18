@@ -5,25 +5,53 @@
 <title>Redirector</title>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // take first path segment after the repo root, e.g. /roblox.com -> "roblox.com"
-  var seg = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
-  if (!seg) {
+  // Example published site URL:
+  // https://fishieguy.github.io/redir.github.io/<TARGET_HERE>
+  // We need to strip the repo part ("redir.github.io") and keep the rest.
+
+  // full path including all segments, e.g. "/redir.github.io/roblox%3A%2F%2FplaceId%3D1231231"
+  var fullPath = window.location.pathname + window.location.search + window.location.hash;
+
+  // the repo name folder that Pages injects as the first path segment
+  // set this to your repo name exactly (change if different)
+  var repoName = 'redir.github.io';
+
+  // remove leading/trailing slashes, split into segments
+  var parts = fullPath.replace(/^\/+|\/+$/g, '').split('/');
+
+  // find position of repoName (usually parts[0]) and take everything after it
+  var startIndex = parts.indexOf(repoName);
+  var tailParts = (startIndex >= 0) ? parts.slice(startIndex + 1) : parts.slice(1);
+
+  // rejoin the remaining path and append original search/hash if needed
+  var tailPathRaw = tailParts.join('/');
+
+  // if nothing after the repo, show message
+  if (!tailPathRaw) {
     document.body.textContent = 'No target provided.';
     return;
   }
 
-  // if the segment already looks like a full URL with scheme, use it as-is,
-  // otherwise prepend https:// (this avoids relative-site 404 behavior)
-  var hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(seg);
-  var target = hasScheme ? seg : ('https://' + seg);
+  // decode percent-encoding (roblox:// will be encoded by browser when typed in path)
+  try {
+    var decoded = decodeURIComponent(tailPathRaw);
+  } catch (e) {
+    // fallback if decode fails
+    var decoded = tailPathRaw;
+  }
 
-  // immediate navigation (replace avoids leaving redirect page in history)
+  // If the decoded string looks like it already contains a full scheme, use it.
+  // Otherwise assume it's a hostname and prepend https://
+  var hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(decoded);
+  var target = hasScheme ? decoded : ('https://' + decoded);
+
+  // redirect (replace avoids leaving this page in history)
   window.location.replace(target);
 
-  // visible fallback if automatic redirect is blocked
+  // clickable fallback if automatic navigation is blocked
   setTimeout(function () {
-    document.body.innerHTML = 'If nothing happened, click to open: <a href="' + target + '" rel="noopener noreferrer" target="_blank">' + target + '</a>';
-  }, 600);
+    document.body.innerHTML = 'If nothing happened, click: <a href="' + target + '" target="_blank" rel="noopener noreferrer">' + target + '</a>';
+  }, 700);
 });
 </script>
 </head>
