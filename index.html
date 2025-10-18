@@ -2,17 +2,29 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>Redirect</title>
+<title>Redirector</title>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const segment = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
-  const domainPattern = /^[a-z0-9.-]+$/i;
-  if (segment && domainPattern.test(segment)) {
-    const target = 'https://' + segment;
-    window.location.replace(target);
-  } else {
-    document.body.innerText = 'No valid redirect target found for "' + (segment || '/') + '".';
+  const seg = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
+
+  if (!seg) {
+    document.body.textContent = 'No target provided.';
+    return;
   }
+  const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(seg) || /^roblox:\/\//.test(seg);
+  const target = hasScheme ? seg : ('https://' + seg);
+
+  // Attempt immediate redirect
+  try {
+    window.location.replace(target);
+  } catch (e) {
+    document.body.innerHTML = 'Click to open: <a href="' + target + '">' + target + '</a>';
+  }
+  setTimeout(function () {
+    if (document.body.innerText.indexOf('Click to open:') === -1) {
+      document.body.innerHTML = 'If nothing happened, click to open: <a href="' + target + '">' + target + '</a>';
+    }
+  }, 700);
 });
 </script>
 </head>
