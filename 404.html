@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Redirector</title>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const seg = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
+
+  if (!seg) {
+    document.body.textContent = 'No target provided.';
+    return;
+  }
+  const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(seg) || /^roblox:\/\//.test(seg);
+  const target = hasScheme ? seg : ('https://' + seg);
+
+  // Attempt immediate redirect
+  try {
+    window.location.replace(target);
+  } catch (e) {
+    document.body.innerHTML = 'Click to open: <a href="' + target + '">' + target + '</a>';
+  }
+  setTimeout(function () {
+    if (document.body.innerText.indexOf('Click to open:') === -1) {
+      document.body.innerHTML = 'If nothing happened, click to open: <a href="' + target + '">' + target + '</a>';
+    }
+  }, 700);
+});
+</script>
+</head>
+<body></body>
+</html>
