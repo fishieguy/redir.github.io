@@ -1,9 +1,13 @@
-<!doctype = html>
+<!doctype html>
 <html>
 	<head>
 		<script>
-			path = window.location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || "";
-			window.href.location = path
+			document.addEventListener('DOMLoaded', function() {
+				path = window.location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || ""
+				if (path) {
+					window.location.assign(path)
+				}
+			})
 		</script>
 	</head>
 </html>
