@@ -5,26 +5,25 @@
 <title>Redirector</title>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const seg = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
-
+  // take first path segment after the repo root, e.g. /roblox.com -> "roblox.com"
+  var seg = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
   if (!seg) {
     document.body.textContent = 'No target provided.';
     return;
   }
-  const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(seg) || /^roblox:\/\//.test(seg);
-  const target = hasScheme ? seg : ('https://' + seg);
 
-  // Attempt immediate redirect
-  try {
-    window.location.replace(target);
-  } catch (e) {
-    document.body.innerHTML = 'Click to open: <a href="' + target + '">' + target + '</a>';
-  }
+  // if the segment already looks like a full URL with scheme, use it as-is,
+  // otherwise prepend https:// (this avoids relative-site 404 behavior)
+  var hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(seg);
+  var target = hasScheme ? seg : ('https://' + seg);
+
+  // immediate navigation (replace avoids leaving redirect page in history)
+  window.location.replace(target);
+
+  // visible fallback if automatic redirect is blocked
   setTimeout(function () {
-    if (document.body.innerText.indexOf('Click to open:') === -1) {
-      document.body.innerHTML = 'If nothing happened, click to open: <a href="' + target + '">' + target + '</a>';
-    }
-  }, 700);
+    document.body.innerHTML = 'If nothing happened, click to open: <a href="' + target + '" rel="noopener noreferrer" target="_blank">' + target + '</a>';
+  }, 600);
 });
 </script>
 </head>
