@@ -1,13 +1,20 @@
 <!doctype html>
 <html>
-	<head>
-		<script>
-			document.addEventListener('DOMLoaded', function() {
-				path = window.location.pathname.replace(/^\/+|\/+$/g, "").split("/")[0] || ""
-				if (path) {
-					window.location.assign(path)
-				}
-			})
-		</script>
-	</head>
+<head>
+<meta charset="utf-8"/>
+<title>Redirect</title>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const segment = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
+  const domainPattern = /^[a-z0-9.-]+$/i;
+  if (segment && domainPattern.test(segment)) {
+    const target = 'https://' + segment;
+    window.location.replace(target);
+  } else {
+    document.body.innerText = 'No valid redirect target found for "' + (segment || '/') + '".';
+  }
+});
+</script>
+</head>
+<body></body>
 </html>
